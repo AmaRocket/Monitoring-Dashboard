@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iframe Grid</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+        }
+
+        .control-bar {
+            position: fixed;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            padding: 10px;
+            border-radius: 8px;
+            z-index: 1000;
+        }
+
+        .control-bar button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 0 5px;
+        }
+
+        .control-bar button:hover {
+            background: #45a049;
+        }
+
+        .grid-container {
+            width: 100%;
+            height: 100%;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(2, 1fr);
+            gap: 5px;
+            padding: 10px;
+        }
+
+        .iframe-container {
+            position: absolute;
+            border: 2px solid #ccc;
+            border-radius: 8px;
+            overflow: hidden;
+            min-height: 100px;
+            min-width: 100px;
+            resize: both;
+            overflow: auto;
+            cursor: move;
+            transition: transform 0.1s ease-out;
+        }
+
+        .iframe-container:hover {
+            border-color: #666;
+        }
+
+        .iframe-container.dragging {
+            opacity: 0.7;
+            z-index: 1000;
+        }
+
+        .iframe-container .drag-handle {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 30px;
+            background: transparent;
+            cursor: move;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .iframe-container .iframe-name {
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            z-index: 1;
+        }
+
+
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        @media (max-width: 768px) {
+            .grid-container {
+                grid-template-columns:  repeat(3, 1fr);
+                grid-template-rows: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="control-bar">
+        <button id="saveLayout">Save Layout</button>
+        <button id="restoreLayout">Restore Layout</button>
+    </div>
+    <div class="grid-container">
+        <div class="iframe-container">
+            <iframe id="maas_cluster" src="http://maas_cluster"></iframe>
+        </div>
+        <div class="iframe-container">
+            <iframe id="hpc_cluster" src="https://hpc_cluster"></iframe>
+        </div>
+        <div class="iframe-container">
+            <iframe id="nagios" src="https://nagios"></iframe>
+        </div>
+        <div class="iframe-container">
+            <iframe id="temp" src="file:///usr/local/tempPlot/temp.png"></iframe>
+        </div>
+        <div class="iframe-container">
+            <iframe id="alis2" src="https://alis2"></iframe>
+        </div>
+    </div>
+    <script>
+        // Make the page full-screen when loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            document.body.requestFullscreen();
+
+            // Add save/restore functionality
+            const saveButton = document.getElementById('saveLayout');
+            const restoreButton = document.getElementById('restoreLayout');
+
+            saveButton.addEventListener('click', () => {
+                const positions = {};
+                iframeContainers.forEach(container => {
+                    const iframe = container.querySelector('iframe');
+                    const rect = container.getBoundingClientRect();
+                    positions[iframe.id] = {
+                        x: rect.left,
+                        y: rect.top,
+                        width: container.offsetWidth,
+                        height: container.offsetHeight
+                    };
+                });
+                localStorage.setItem('iframePositions', JSON.stringify(positions));
+                alert('Layout saved successfully!');
+            });
+
+            restoreButton.addEventListener('click', () => {
+                const savedPositions = JSON.parse(localStorage.getItem('iframePositions'));
+                if (savedPositions) {
+                    iframeContainers.forEach(container => {
+                        const iframe = container.querySelector('iframe');
+                        const position = savedPositions[iframe.id];
+                        if (position) {
+                            container.style.transform = `translate(${position.x}px, ${position.y}px)`;
+                            container.style.width = `${position.width}px`;
+                            container.style.height = `${position.height}px`;
+                        }
+                    });
+                    alert('Layout restored successfully!');
+                } else {
+                    alert('No saved layout found!');
+                }
+            });
+
+            // Make iframes draggable
+            const iframeContainers = document.querySelectorAll('.iframe-container');
+            const gridContainer = document.querySelector('.grid-container');
+
+            iframeContainers.forEach(container => {
+                let isDragging = false;
+                let currentX, currentY, initialX, initialY;
+
+                // Add drag handle and iframe name
+                const dragHandle = document.createElement('div');
+                dragHandle.className = 'drag-handle';
+                container.insertBefore(dragHandle, container.firstChild);
+
+                const iframeName = document.createElement('div');
+                iframeName.className = 'iframe-name';
+                iframeName.textContent = container.querySelector('iframe').id;
+                container.insertBefore(iframeName, container.firstChild);
+
+                // Mouse down event
+                dragHandle.addEventListener('mousedown', (e) => {
+                    if (e.target === dragHandle) {
+                        isDragging = true;
+                        container.classList.add('dragging');
+
+                        // Get initial position
+                        const rect = container.getBoundingClientRect();
+                        initialX = e.clientX - rect.left;
+                        initialY = e.clientY - rect.top;
+
+                        // Prevent text selection
+                        e.preventDefault();
+                    }
+                });
+
+                // Mouse move event
+                document.addEventListener('mousemove', (e) => {
+                    if (isDragging) {
+                        currentX = e.clientX;
+                        currentY = e.clientY;
+
+                        // Calculate new position
+                        const x = currentX - initialX;
+                        const y = currentY - initialY;
+
+                        // Keep within grid container
+                        const gridRect = gridContainer.getBoundingClientRect();
+                        const maxX = gridRect.width - container.offsetWidth;
+                        const maxY = gridRect.height - container.offsetHeight;
+
+                        const newX = Math.max(0, Math.min(x, maxX));
+                        const newY = Math.max(0, Math.min(y, maxY));
+
+                        // Use transform for smoother animation
+                        container.style.transform = `translate(${newX}px, ${newY}px)`;
+                    }
+                });
+
+                // Mouse up event
+                document.addEventListener('mouseup', () => {
+                    if (isDragging) {
+                        isDragging = false;
+                        container.classList.remove('dragging');
+                    }
+                });
+
+                // Prevent dragging when clicking on iframe
+                container.querySelector('iframe').addEventListener('mousedown', (e) => {
+                    e.stopPropagation();
+                });
+            });
+
+            // Set up auto-refresh for iframes
+            function refreshIframes() {
+                document.getElementById('alis2').contentWindow.location.reload();
+                document.getElementById('temp').contentWindow.location.reload();
+                document.getElementById('nagios').contentWindow.location.reload();
+                document.getElementById('hpc_cluster').contentWindow.location.reload();
+                document.getElementById('maas_cluster').contentWindow.location.reload();
+            }
+
+            // Refresh every 30 sec
+            setInterval(refreshIframes, 30000);
+        });
+    </script>
+</body>
+</html>
