@@ -18,7 +18,9 @@ A responsive, interactive dashboard for monitoring various system services and m
 - Nagios System Monitoring
 - Temperature Plots
 - ALIS2 Status (Custom management system)
-- Ultimaker Status (using Docker container to use it as an Iframe)
+- Ultimaker Status (using Docker container to use it as an Iframe: command bellow)
+
+```docker run -it -d -p 3000:3000 --restart unless-stopped linuxserver/firefox:latest ```
 
 ## Technical Details
 
