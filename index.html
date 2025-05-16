@@ -3,7 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Iframe Grid</title>
+    <meta http-Equiv="Cache-Control" Content="no-cache">
+    <meta http-Equiv="Pragma" Content="no-cache">
+    <meta http-Equiv="Expires" Content="0">
+    <title>System Monitoring</title>
     <style>
         * {
             margin: 0;
@@ -127,7 +130,7 @@
     </div>
     <div class="grid-container">
         <div class="iframe-container">
-            <iframe id="ultimaker" src="http://container:3000" width="100%" height="800px" frameborder="0"></iframe>
+            <iframe id="Ultimaker" src="http:localhost:3000" width="100%" height="800px" frameborder="0"></iframe>
         </div>
 
         <div class="iframe-container">
@@ -143,10 +146,14 @@
             <iframe id="temp" src="file:///usr/local/tempPlot/temp.png"></iframe>
         </div>
         <div class="iframe-container">
-            <iframe id="alis2" src="https://alis2"></iframe>
+            <iframe id="alis2" src="https://central.dmi.unibas.ch/scripts/alis2status.php?p=letme"></iframe>
         </div>
     </div>
     <script>
+        function alisReload() {
+          document.getElementById('alis2').src = document.getElementById('alis2').src;
+        }
+        var aintervalID = setInterval("alisReload();", 300000);
         // Make the page full-screen when loaded
         document.addEventListener('DOMContentLoaded', () => {
             document.body.requestFullscreen();
@@ -260,17 +267,36 @@
                 });
             });
 
-            // Set up auto-refresh for iframes
-            function refreshIframes() {
-                document.getElementById('alis2').contentWindow.location.reload();
-                document.getElementById('temp').contentWindow.location.reload();
-                document.getElementById('nagios').contentWindow.location.reload();
-                document.getElementById('hpc_cluster').contentWindow.location.reload();
-                document.getElementById('maas_cluster').contentWindow.location.reload();
+            // Remove the old refresh code and add these functions instead:
+            function clusterReload() {
+                document.getElementById('hpc_cluster').src = document.getElementById('hpc_cluster').src;
             }
+            var intervalID = setInterval("clusterReload();", 300000);
 
-            // Refresh every 30 sec
-            setInterval(refreshIframes, 10000);
+            function maasReload() {
+                document.getElementById('maas_cluster').src = document.getElementById('maas_cluster').src;
+            }
+            var mintervalID = setInterval("maasReload();", 300000);
+
+            function tempReload() {
+                document.getElementById('temp').src = document.getElementById('temp').src;
+            }
+            var tintervalID = setInterval("tempReload();", 300000);
+
+            function alisReload() {
+                document.getElementById('alis2').src = document.getElementById('alis2').src;
+            }
+            var aintervalID = setInterval("alisReload();", 300000);
+
+            function nagiosReload() {
+                document.getElementById('nagios').src = document.getElementById('nagios').src;
+            }
+            var nintervalID = setInterval("nagiosReload();", 300000);
+
+            function ultimakerReload() {
+                document.getElementById('Ultimaker').src = document.getElementById('Ultimaker').src;
+            }
+            var uintervalID = setInterval("ultimakerReload();", 300000);
         });
     </script>
 </body>
