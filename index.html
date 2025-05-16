@@ -143,7 +143,7 @@
             <iframe id="nagios" src="https://nagios"></iframe>
         </div>
         <div class="iframe-container">
-            <iframe id="temp" src="file:///usr/local/tempPlot/temp.png"></iframe>
+            <iframe id="temp" src="file:///temperature_plot.html"></iframe>
         </div>
         <div class="iframe-container">
             <iframe id="alis2" src="https://central.dmi.unibas.ch/scripts/alis2status.php?p=letme"></iframe>
@@ -271,32 +271,32 @@
             function clusterReload() {
                 document.getElementById('hpc_cluster').src = document.getElementById('hpc_cluster').src;
             }
-            var intervalID = setInterval("clusterReload();", 300000);
+            var intervalID = setInterval("clusterReload();", 100000);
 
             function maasReload() {
                 document.getElementById('maas_cluster').src = document.getElementById('maas_cluster').src;
             }
-            var mintervalID = setInterval("maasReload();", 300000);
+            var mintervalID = setInterval("maasReload();", 100000);
 
             function tempReload() {
-                document.getElementById('temp').src = document.getElementById('temp').src;
+                document.getElementById('temp').src = 'file:///temperature_plot.html' + new Date().getTime();
             }
-            var tintervalID = setInterval("tempReload();", 300000);
+            var tintervalID = setInterval("tempReload();", 100000);
 
             function alisReload() {
                 document.getElementById('alis2').src = document.getElementById('alis2').src;
             }
-            var aintervalID = setInterval("alisReload();", 300000);
+            var aintervalID = setInterval("alisReload();", 100000);
 
             function nagiosReload() {
                 document.getElementById('nagios').src = document.getElementById('nagios').src;
             }
-            var nintervalID = setInterval("nagiosReload();", 300000);
+            var nintervalID = setInterval("nagiosReload();", 100000);
 
             function ultimakerReload() {
                 document.getElementById('Ultimaker').src = document.getElementById('Ultimaker').src;
             }
-            var uintervalID = setInterval("ultimakerReload();", 300000);
+            var uintervalID = setInterval("ultimakerReload();", 100000);
         });
     </script>
 </body>
