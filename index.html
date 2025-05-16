@@ -269,7 +269,8 @@
 
             // Remove the old refresh code and add these functions instead:
             function clusterReload() {
-                document.getElementById('hpc_cluster').src = document.getElementById('hpc_cluster').src;
+                const timestamp = new Date().getTime();
+                document.getElementById('hpc_cluster').src = `https://hpc_cluster/?t=${timestamp}`;
             }
             var intervalID = setInterval("clusterReload();", 100000);
 
