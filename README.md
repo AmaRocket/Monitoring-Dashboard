@@ -1,5 +1,7 @@
 # System Monitoring Dashboard
 
+![Screenshot from 2025-05-15 17-49-44.png](Screenshot%20from%202025-05-15%2017-49-44.png) Dashboard example
+
 A responsive, interactive dashboard for monitoring various system services and metrics in real-time. The dashboard features draggable and resizable panels, layout persistence, and automatic refresh functionality.
 
 ## Features
