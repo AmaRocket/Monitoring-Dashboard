@@ -148,6 +148,9 @@
         <div class="iframe-container">
             <iframe id="alis2" src="alis2"></iframe>
         </div>
+        <div class="iframe-container">
+            <iframe id="leihs" src="leihs" width="100%" height="800px" frameborder="0"></iframe>
+        </div>
     </div>
     <script>
         // Move these functions outside of DOMContentLoaded
@@ -174,6 +177,9 @@
 
         function ultimakerReload() {
             document.getElementById('Ultimaker').src = document.getElementById('Ultimaker').src;
+        }
+        function ultimakerReload() {
+            document.getElementById('leihs').src = document.getElementById('leihs').src;
         }
 
         // Then in your DOMContentLoaded event listener, change the setInterval calls to use function references:
